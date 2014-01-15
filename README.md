@@ -14,3 +14,4 @@ Reference
 =========
 Read "Plugins for mGSD" for the works I've done.
 mGSD official site: http://mgsd.tiddlyspot.com/#mGSD
+mGSD documentation: http://mgsd-docs.tiddlyspace.com/
