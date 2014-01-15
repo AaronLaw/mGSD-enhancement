@@ -8,5 +8,9 @@ setup
 =====
 No setup is need. Download the mGSD demo3.html and run it with Firefox. (tiddly-fox plugin is needed to save the change in Firefox.)
 
+Edit "DefaultTiddlers" if you want to change the tiddlers shown when the file load.
+
 Reference
 =========
+Read "Plugins for mGSD" for the works I've done.
+mGSD official site: http://mgsd.tiddlyspot.com/#mGSD
