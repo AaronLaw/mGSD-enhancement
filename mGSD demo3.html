@@ -874,6 +874,168 @@ buttonLong:active
 <div title="Area" modifier="YourName" created="200804250559" modified="201009151157" tags="GTDComponent" changecount="1">
 <pre></pre>
 </div>
+<div title="AutoFocus" modifier="YourName" created="201401151526" modified="201401151527" tags="Reference Personal" changecount="2">
+<pre>!AutoFocus with GTD Under-the-Hood in mGSD
+
+!!Background
+
+I had been using mGSD for about two months, having recently migrated from [[RememberTheMilk|http://www.rememberthemilk.com]], when I read about [[Mark Forster's|http://www.markforster.net]] AutoFocus (AF) systems.  Even though I was delighted with the new sense of control mGSD gave me over all my projects, I was still having trouble finding ways to work through my Next Action list.
+
+AutoFocus aims to balance the rational and intuitive parts of the brain when deciding what to work on.  A quick dabble with the first version of AutoFocus, also known as AF1, made me realize the power of the technique -- I had the most productive afternoon I'd had in weeks, making great progress on projects I'd been procrastinating on for months.  Even more impressive was the fact that I did this while working from home, where I am usually somewhat more distracted than I am in the office.  After viewing the AutoFocus 4 (AF4) demo, I realized that it would be relatively easy to create an mGSD dashboard to run AF4 on my GTD next actions list, and I set out to do so almost immediately.  This page documents how to implement the AutoFocus Dashboard in your own mGSD system.  It assumes you are already familiar with GTD and mGSD, and it provides links to resources about AF and AF4.
+
+!!!Where to learn more about AutoFocus
+* http://www.markforster.net/autofocus-index/
+* [[A nice blog post about AutoFocus 4|http://blog.alecsatin.com/autofocus4/]]
+* [[ Andreas Hoffman's AF4 Demo|http://autofocus.cc/public/data/af4-demo.pdf]]: The AutoFocus Dashboard for mGSD is modeled off this demo.  Viewing the demo is strongly recommended before attempting to use the dashboard.
+
+!!!Differences from GTD
+* One big difference is that context is ignored while getting stuff done.  Context is particularly prominent in the mGSD documentation.  This may seem very unorthodox to GTD devotees.
+** If you really like GTD contexts, edit the content of the dashboard tiddler to group by context.
+** If you tend to work in only one context, you may really like the AutoFocus Dashboard for mGSD.
+* Items with Next status are on the AF4 Closed List.
+* The Pending status customization described in [[Custom Project Classifications]] is used to designate items on the AF4 Open List.
+* Having an Open List means you cant add items directly to the Closed List.  Instead of creating new Next actions, you create new Pending actions.  You get to consider acting on Pending actions when you scan the Open List.  
+* Future action status should be reserved mostly for dependent actions.  This will keep them out of your sight, but still in the system.
+* Items on the Closed and Open Lists are sorted chronologically by modification, so new and updated items always end up at the bottom of the list, as AF intends.
+
+!!!Most recognizable AutoFocus features
+* Backlog list
+* Active list
+* Completion of actions
+* Highlighting actions for review
+
+!!!Differences from AutoFocus
+* Uses the Closed/Open list terminology seen in the demo, rather than the Backlog/Active terms used by Mark Forster in his blog post about AF4.  Feel free to change this to whatever you prefer.
+* Tickler tiddlers for recurring tasks or stuff you have to get done today (I gather this is more like the AF4 revision).
+* &quot;Waiting For&quot; actions for actions that are dependent on other people or external factors
+* Items are checked off instead of crossed out
+* Completed actions accumulate in a &quot;Done&quot; section rather than staying in place on the lists (makes the lists tidier, IMO).
+* Dependent actions are automatically made Next by mGSD when the action they depend upon is completed.  This means &quot;new&quot; tasks are added to the Open list instead of the Closed list.  This is not a problem when the just-completed action is on the Closed list, but it's a bit messy when it was on the Open list.  When the head of a chain of dependent actions are on the Closed list, it's effectively like keeping the entire project on the Closed list, and you can continue working on tasks for the same project as they become active and appear on the Closed list, which is pretty much as AutoFocus intended.  If the head action is on the Open list, however, subsequent actions jump onto the Closed list as they become active.  (Someday, I'll learn more JavaScript and figure out how to fix this.)
+* You highlight actions for review by starring them
+* You can also consider using starring to keep track of where you left off at the end of a day.
+
+!!!Things AutoFocus users may want to note
+
+If you are an experienced AutoFocus user who is new to mGSD, take note of the fact that:
+* mGSD is completely free to use, including online at tiddlyspot.com
+* You can ignore all the GTD features like Ticklers and just do pure AF4 in mGSD.  The AutoFocus dashboard hides the tickler list when empty, so it's like it's not even there.
+
+!!Implementing the AutoFocus Dashboard for mGSD
+
+Add the Pending action status as described in the [[Custom Project Classifications]] customization.
+
+Create a new tiddler called '''AutoFocus Dashboard'''
+;Content
+{{{
+ {{cols2{
+ 
+ {{col{
+ 
+ &lt;&lt;mgtdList title:'Highlighted for Review' startTag:Starred tags:'Action &amp;&amp; !Done' view:ActionProj mode:global
+ 	group:ActionStatus
+ 	gView:bold
+ 	sort:modified
+ 	&gt;&gt;
+ 
+ &lt;&lt;tiddler 'Ticklers Requiring Action'&gt;&gt;
+ 
+ &lt;&lt;mgtdList
+ 	title:'Closed List'
+ 	startTag:Action tags:'Next &amp;&amp; !Done'
+ 	view:ActionProj
+ 	mode:global
+ 	where:tiddler.hasActiveProject()
+ 	sort:modified
+ &gt;&gt;
+ 
+ &lt;&lt;mgtdList startTag:Action title:'Waiting' tags:'[(Waiting For)] &amp;&amp; !Done' view:ActionProj mode:global 
+ 	group:Contact
+ 	gView:bold
+ 	newButtonTags:'Action [(Waiting For)]'
+ 	where:tiddler.hasActiveProject()
+ 	&gt;&gt;
+ 
+ 
+ }}}
+ 
+ {{col{
+ 
+ &lt;&lt;mgtdList
+ 	title:'Open List'
+ 	startTag:Action
+ 	tags:'Pending &amp;&amp; !Done'
+ 	view:ActionProj
+ 	mode:global
+ 	where:tiddler.hasActiveProject()
+ 	newButtonTags:'Action Pending'
+         sort:modified
+ &gt;&gt;
+ 
+ {{scroll10{
+ 
+ &lt;&lt;mgtdList
+ 	title:'Done'
+ 	startTag:Action
+ 	tags:'Done'
+ 	view:DoneAction
+ 	mode:global
+ 	newButtonTags:'Action Next Done'
+ 	sort:-modified
+ &gt;&gt;
+ 
+ }}}
+ 
+ }}}
+ 
+ }}}
+}}}
+;Tags
+:View excludeSearch
+
+Add the '''AutoFocus Dashboard''' to your default tiddlers and the DoWorkMenu.
+
+!!Running AF4 on the AutoFocus Dashboard for mGSD
+
+For the sake of brevity, these instructions only make sense if you've read about how to do AutoFocus 4.  They will make the most sense if you have viewed the demo.
+
+# Go through items on the Closed List as shown in the AF4 demo.
+# Check items off when they are completed.
+# If you are not done with a task when you are done working on it, change its status from Next to Pending instead of checking it off.  Feel free to also edit the description.
+# Go through items on the Open list as the system requires, checking them off when completed.
+# If you don't complete an item you've been working on from the open list, edit it's description so it ends up back at the bottom of the list.
+# When it's time to highlight the items that are left on the closed list, click the star next to each item. Move all the items on the Open List to the Closed List by changing them from Pending status to Next.
+# When it's time to dismiss a task, you can either delete it or set its status to Future.  I try to figure out if it might be dependent on another, undocumented action when I want to change an action's status to Future, or if it might better belong to a Someday/Maybe project, where it can be kept temporarily out of sight.
+
+;Tips
+* Opening task tiddlers can be a good way to keep track of which task you're currently working on.
+* You may notice that the AutoFocus Dashboard also includes the Tickler, Waiting, and Done actions.  This allows you to accommodate recurring tasks and tasks that are dependent on other people or external factors, while allowing you to see what you've accomplished recently.  After skimming the discussion forums at Forster's website, I gather that the inclusion of recurring/tickler tasks may make this dashboard more of an implementation of an AF4 variant known as [[AF4R|http://www.markforster.net/forum/post/1325521 AF4R]].
+
+!!See the Dashaboard in Action
+
+I've set up a [[AF4 Demo TiddlySpot Site|http://af4-demo.tiddlyspot.com/]] with the content of [[Mark Forster's live AF4 demonstration|http://www.markforster.net/blog/2009/9/4/working-live-today.html]].  You can use it follow along as you step through Andreas Hoffman's AF4 Demo Animation.  Check off completed items, toggle unfinished items from Next to Pending, add new items to the Open List, and use the star to highlight tasks for review.  Dismiss tasks by setting their status to Future.
+
+!!Combining AF with GTD
+
+The pure AutoFocus systems are just about lists of actions to take, but in mGSD you can run GTD &quot;under the hood&quot; at the same time you're using AF to take action.
+* You can still give actions context
+* You can still assign actions to projects
+* You can make actions dependent on each other
+* mGSD makes it very easy to do all these things at the time of action creation
+* You can still have tickler actions
+* In mGSD, Someday/Maybe project status and Future action status are kept out of your way.  If you really can't dismiss something when the AF rules tell you to, you can put it out of sight instead.  If you like, you can set a tickler on it to remind you to review it in the future.  (Thanks, mGSD, you're awesome!)
+* Running GTD in the background of AF is useful for conducting reviews
+* It's easy to switch back if you decide AF is not for you, just pick (or create!) a different dashboard that better meets your needs.  (Note: built-in dashboards will need to be modified to include Pending actions if you decide to keep the Pending action status modification.)
+
+!!Other Interesting Things to Note
+When it comes to ongoing projects with many steps or lots of time needed to devote to it, you have the choice to either make chains of dependent actions, or use one generalized action and move it back and forth between the open and closed lists as you work on it, updating the description at the same time, as seen in the AF4 demo.  For example, if you want to read a book, you could either create a chain of actions for book chapters to read, or a general &quot;read book&quot; action that toggles between Next and Pending until it's finished, with the option to edit the description to reflect your progress.
+
+!!TBD
+
+* A plugin to highlight all the tasks remaining on the Closed List at once
+* A plugin to move all the items on the Open List to the Closed List at once
+
+(from: http://mgsd-docs.tiddlyspace.com/#AutoFocus)</pre>
+</div>
 <div title="AutoFocus Dashboard" modifier="YourName" created="201102110223" modified="201204051749" tags="View AutoFocus" changecount="6">
 <pre>{{cols2{
 
@@ -7202,7 +7364,7 @@ priority:1</pre>
 <div title="Physical specs" modifier="YourName" created="200803301355" modified="201006281646" tags="Action Work [[CustCheck Server Install]] Future @Work" server.type="file" server.host="file:///media/MSLAY/MonkeyGTD30/MSlay_GTD3.html" server.page.revision="200803301355" changecount="12">
 <pre>Get power, cooling,space requirements for server, to use in Hardware request.</pre>
 </div>
-<div title="Plugins for mGSD" modifier="YourName" created="201401151238" modified="201401151304" tags="Reference Personal monkey monkeyGTD GTD TiddlyWiki site" changecount="41">
+<div title="Plugins for mGSD" modifier="YourName" created="201401151238" modified="201401151529" tags="Reference Personal monkey monkeyGTD GTD TiddlyWiki site" changecount="43">
 <pre>My modification (from the original mGSD 3.1.8b beta) for a better mGSD.
 
 The content below sync with a tiddly titled 'Plugins for mGSD'.
@@ -7267,6 +7429,7 @@ I can find some code of plugins in the Google group gtd-tiddlywiki (https://grou
 
 !!2014-01-15
 # cleanup: cleanup the whole mGSD that I am currently using in, and git it on github.com
+# add: [[AutoFocus]] from http://mgsd-docs.tiddlyspace.com/#AutoFocus for referencing.
 </pre>
 </div>
 <div title="PrettyDatesPlugin" modifier="MPTW" created="200803080025" modified="201009151124" tags="systemConfig excludeSearch" changecount="1">
